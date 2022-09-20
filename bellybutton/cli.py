@@ -24,6 +24,7 @@ from bellybutton.initialization import generate_config
 
 PARSER = argparse.ArgumentParser()
 SUBPARSERS = PARSER.add_subparsers()
+LIST_ARGUMENTS = ["files"]
 
 
 LintingFailure = namedtuple('LintingFailure', 'failure path lineno line rule')
@@ -62,6 +63,9 @@ def cli_command(fn):
         if type(default_value) is bool:
             kwargs['action'] = 'store_{!r}'.format(not default_value).lower()
             args.append('-{}'.format(argument_name[0]))
+        elif argument_name in LIST_ARGUMENTS:
+            kwargs['nargs'] = '+'
+            kwargs['type'] = str
         else:
             kwargs['type'] = type(default_value)
 
@@ -160,7 +164,7 @@ def linting_failures(filepaths, rules):
 
 
 @cli_command
-def lint(modified_only=False, project_directory='.', verbose=False):
+def lint(modified_only=False, project_directory='.', verbose=False, files=None):
     """Lint project."""
     config_path = os.path.abspath(
         os.path.join(project_directory, '.bellybutton.yml')
@@ -193,8 +197,13 @@ def lint(modified_only=False, project_directory='.', verbose=False):
         failure_message = "{path}:{lineno}\t{rule.name}: {rule.description}"
 
     failures = 0
-    filepath_source = get_git_modified if modified_only else walk_python_files
-    filepaths = list(filepath_source(os.path.abspath(project_directory)))
+
+    if files is None:
+        filepath_source = get_git_modified if modified_only else walk_python_files
+        filepaths = list(filepath_source(os.path.abspath(project_directory)))
+    else:
+        filepaths = files
+
     for failure in linting_failures(filepaths, rules):
         failures += 1
         print(failure_message.format(
