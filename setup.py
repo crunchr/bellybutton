@@ -4,7 +4,7 @@ setup(
     name='bellybutton',
     packages=['bellybutton'],
     platforms='any',
-    version='99.0.0-0.3.1',
+    version='99.0.0',
     description='Custom Python linting through AST expressions.',
     author='H. Chase Stevens',
     author_email='chase@chasestevens.com',
