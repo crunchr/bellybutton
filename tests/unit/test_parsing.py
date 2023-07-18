@@ -26,7 +26,7 @@ except ImportError:
 ))
 def test_constructors(expression, expected_type):
     """Ensure custom constructors successfully parse given expressions."""
-    assert isinstance(yaml.load(expression), expected_type)
+    assert isinstance(yaml.load(expression, Loader=yaml.FullLoader), expected_type)
 
 
 def test_parse_rule():
